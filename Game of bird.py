@@ -141,6 +141,8 @@ class Cano:
         base_ponto = passaro_mask.overlap(base_mask, distancia_base)
         topo_ponto = passaro_mask.overlap(topo_mask, distancia_topo)
 
+        """Confere colisão"""
+
         if base_ponto or topo_ponto:
             return True
         else:
