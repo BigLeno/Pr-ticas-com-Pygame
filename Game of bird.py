@@ -1,3 +1,4 @@
+from tkinter import image_names
 import pygame
 import os
 import random
@@ -91,7 +92,59 @@ class Passaro:
         pos_centro_imagem = self.imagem.get_rect(topleft=(self.x, self.y)).center
         retangulo = imagem_rotacionada.get_rect(center=pos_centro_imagem)
         tela.blit(imagem_rotacionada, retangulo.topleft)
+    
+    def get_mask (self):
+        """Avalia a existência de pixels em comun, equivalente a colisão de entidades"""
+        pygame.mask.from_surface(self.imagem)
 
+
+class Cano:
+    """Iniciando a construção dos itens do jogo"""
+    dist = 200
+    vel = 5
+    
+    def __init__(self, x):
+        """Construindo o cano"""
+        self.x = x
+        self.altura = 0
+        self.pos_topo = 0
+        self.pos_base = 0
+        self.cano_topo = pygame.transform.flip(img_cano, False, True)
+        self.cano_base = img_cano
+        self.passou = False
+        self.definir_altura()
+
+    def definir_altura(self):
+        """Definindo a altura dos canos"""
+        self.altura = random.randrange(50, 450)
+        self.pos_base = self.altura - self.cano_topo.get_height()
+        self.pos_topo = self.altura + self.dist
+
+    def mover (self):
+        """Definindo o movimento dos canos"""
+        self.x -= self.vel
+
+    def desenhar (self, tela):
+        """Definindo o desenho do cano"""
+        tela.blit(self.cano_topo, (self.x, self.pos_topo))
+        tela.blit(self.cano_base, (self.x, self.pos_base))
+    
+    def colisao (self, passaro):
+        """Estabelecendo a colisão de objetos"""
+        passaro_mask = passaro.get_masks()
+        topo_mask = pygame.mask.from_surface(self.cano_topo)
+        base_mask = pygame.mask.from_surface(self.cano_base)
+
+        distancia_topo = (self.x - passaro.x, self.pos_topo - round(passaro.y))
+        distancia_base = (self.x - passaro.x, self.pos_base - round(passaro.y))
+
+        base_ponto = passaro_mask.overlap(base_mask, distancia_base)
+        topo_ponto = passaro_mask.overlap(topo_mask, distancia_topo)
+
+        if base_ponto or topo_ponto:
+            return True
+        else:
+            return False
 
 
 
@@ -99,5 +152,3 @@ class Passaro:
 class Chao:
     pass
 
-class Cano:
-    pass
