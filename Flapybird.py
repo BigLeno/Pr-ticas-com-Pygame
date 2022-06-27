@@ -160,10 +160,9 @@ class Chao:
         tela.blit(self.IMAGEM, (self.x2, self.y))
 
 
-def desenhar_tela(tela, passaros, canos, chao, pontos):
+def desenhar_tela(tela, passaro, canos, chao, pontos):
     tela.blit(IMAGEM_BACKGROUND, (0, 0))
-    for passaro in passaros:
-        passaro.desenhar(tela)
+    passaro.desenhar(tela)
     for cano in canos:
         cano.desenhar(tela)
 
@@ -174,45 +173,50 @@ def desenhar_tela(tela, passaros, canos, chao, pontos):
 
 
 def main():
-    passaros = [Passaro(230, 350)]
+    passaro = Passaro(230, 350)
     chao = Chao(730)
     canos = [Cano(700)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
     relogio = pygame.time.Clock()
 
-    rodando = True
-    while rodando:
+    #rodando = True
+    situacion = 'menu'
+
+    while situacion == 'menu':
+        tela.fill((127, 127, 127))
+        for evento in pygame.event.get():
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_SPACE:
+                    situacion = 'rodando'
+
+    while situacion == 'rodando':
         relogio.tick(30)
 
         # interação com o usuário
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
-                rodando = False
                 pygame.quit()
                 quit()
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_SPACE:
-                    for passaro in passaros:
-                        passaro.pular()
+                    passaro.pular()
 
         # mover as coisas
-        for passaro in passaros:
-            passaro.mover()
+        passaro.mover()
         chao.mover()
 
         adicionar_cano = False
         remover_canos = []
         for cano in canos:
-            for i, passaro in enumerate(passaros):
-                if cano.colidir(passaro):
-                    passaros.pop(i)
-                    #rodando = False
-                    #pygame.quit()
-                    #quit()
-                if not cano.passou and passaro.x > cano.x:
-                    cano.passou = True
-                    adicionar_cano = True 
+            if cano.colidir(passaro):
+                situacion = 'gameover'
+                break
+
+            if not cano.passou and passaro.x > cano.x:
+                cano.passou = True
+                adicionar_cano = True        
+                
             cano.mover()
             if cano.x + cano.CANO_TOPO.get_width() < 0:
                 remover_canos.append(cano)
@@ -223,12 +227,16 @@ def main():
         for cano in remover_canos:
             canos.remove(cano)
 
-        for i, passaro in enumerate(passaros):
-            if (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
-                passaros.pop(i)
+        desenhar_tela(tela, passaro, canos, chao, pontos)
 
-        desenhar_tela(tela, passaros, canos, chao, pontos)
+    while situacion == 'gameover':
+        tela.fill((200, 200, 200))
+        for evento in pygame.event.get():
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_SPACE:
+                    situacion = 'menu'
 
 
 if __name__ == '__main__':
     main()
+   
