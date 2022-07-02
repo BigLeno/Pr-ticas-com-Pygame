@@ -175,7 +175,8 @@ def desenhar_tela(tela, passaro, canos, chao, pontos):
 def main():
     passaro = Passaro(230, 350)
     chao = Chao(730)
-    canos = [Cano(700)]
+    cano = Cano(700)
+    canos = [cano]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
     relogio = pygame.time.Clock()
@@ -208,10 +209,17 @@ def main():
 
         adicionar_cano = False
         remover_canos = []
+        if canos[0].colidir(passaro):
+            situacion = 'gameover'
+            break
+        elif cano.colidir(passaro):
+            situacion = 'gameover'
+            break
+
         for cano in canos:
-            if cano.colidir(passaro):
-                situacion = 'gameover'
-                break
+            #if cano.colidir(passaro):
+            #    situacion = 'gameover'
+            #   break
 
             if not cano.passou and passaro.x > cano.x:
                 cano.passou = True
